@@ -12,6 +12,7 @@ class SessionSchema(Schema):
     date = fields.String(required=True)
     time = fields.String(required=True)
     members = fields.List(fields.String(), required=True)
+    items = fields.List(fields.Dict())
 
     @validates("name")
     def validate_name(self, name):
@@ -30,6 +31,12 @@ class SessionSchema(Schema):
         for user in members:
             if not User.query.filter_by(username=user).first():
                 raise ValidationError(f"User {user} does not exist")
+
+    @validates("items")
+    def valdidate_items(self, items):
+        for item in items:
+            if len(item["name"]) > 20:
+                raise ValidationError(f"Item {item['name']} has exceeded the maximal length of 20 characters")
 
     @validates("address")
     def validate_address(self, address):

@@ -11,6 +11,7 @@ class Session(db.Model):
     date = db.Column(db.String(10))
     time = db.Column(db.String(5))
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    items = db.relationship("Item", backref="session", lazy=True)
 
     def get_data(self):
         return {"id": self.id,
@@ -19,4 +20,5 @@ class Session(db.Model):
                 "address": self.address,
                 "date": self.date,
                 "time": self.time,
-                "owner": User.query.get(self.owner_id).get_data()}
+                "owner": User.query.get(self.owner_id).get_data(),
+                "items": [item.get_data() for item in self.items]}

@@ -5,12 +5,17 @@ from http import HTTPStatus
 from app.resources.jwt import *
 from app.models.session import *
 from app.models.user import User
+from app.models.item import Item
 from app.schemas.session import SessionSchema
 
 class SessionResource(Resource):
     @jwt_required()
     def post(self):
         json_data = request.get_json()
+
+        print(json_data["items"])
+        print(json_data["members"])
+
         sessionSchema = SessionSchema()
         try:
             session_data = sessionSchema.load(data=json_data)
@@ -25,6 +30,9 @@ class SessionResource(Resource):
                     session.invites.append(user)
                 else:
                     session.members.append(user)
+
+            for item in session_data["items"]:
+                session.items.append(Item(name=item["name"], amount=item["amount"], byHost=item["byHost"]))
 
             db.session.add(session)
             db.session.commit()
