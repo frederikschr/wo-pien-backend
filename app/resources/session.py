@@ -12,10 +12,6 @@ class SessionResource(Resource):
     @jwt_required()
     def post(self):
         json_data = request.get_json()
-
-        print(json_data["items"])
-        print(json_data["members"])
-
         sessionSchema = SessionSchema()
         try:
             session_data = sessionSchema.load(data=json_data)
@@ -55,10 +51,10 @@ class SessionResource(Resource):
 
     @jwt_required()
     def get(self):
+        if id := request.args.get("id"):
+            return {"session": Session.query.get(int(id)).get_data()}, HTTPStatus.OK
         return {"sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).sessions],
                 "invited_sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).invited_sessions]}, HTTPStatus.OK
-
-
 
 
 

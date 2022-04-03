@@ -21,4 +21,6 @@ class Session(db.Model):
                 "date": self.date,
                 "time": self.time,
                 "owner": User.query.get(self.owner_id).get_data(),
+                "members": [user.get_data() for user in self.members],
+                "invited": [user.get_data() for user in self.invites],
                 "items": [item.get_data() for item in self.items]}
