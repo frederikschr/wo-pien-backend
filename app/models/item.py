@@ -6,6 +6,7 @@ class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
     amount = db.Column(db.Integer)
+    price = db.Column(db.Integer)
     byHost = db.Column(db.Boolean, default=False)
     session_id = db.Column(db.Integer(), db.ForeignKey("session.id"))
 
@@ -13,5 +14,6 @@ class Item(db.Model):
         return {"id": self.id,
                 "name": self.name,
                 "amount": self.amount,
+                "price": self.price,
                 "byHost": self.byHost,
                 "session_id": self.session_id}
