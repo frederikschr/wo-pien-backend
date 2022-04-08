@@ -32,6 +32,7 @@ class SessionResource(Resource):
 
             db.session.add(session)
             db.session.commit()
+            return HTTPStatus.CREATED
 
         except ValidationError as e:
             return e.messages, HTTPStatus.BAD_REQUEST

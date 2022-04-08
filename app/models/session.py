@@ -24,4 +24,5 @@ class Session(db.Model):
                 "members": [user.get_data() for user in self.members],
                 "invited": [user.get_data() for user in self.invites],
                 "items": [item.get_data() for item in self.items],
-                "items_by_host": [item.get_data() for item in self.items if item.byHost]}
+                "items_by_host": [item.get_data() for item in self.items if item.byHost],
+                "items_by_members": [item.get_data() for item in self.items if not item.byHost]}
