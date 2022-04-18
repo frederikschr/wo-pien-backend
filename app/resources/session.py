@@ -28,7 +28,7 @@ class SessionResource(Resource):
                     session.members.append(user)
 
             for item in session_data["items"]:
-                session.items.append(Item(name=item["name"], amount=item["amount"], byHost=item["byHost"]))
+                session.items.append(Item(name=item["name"], amount=item["amount"], byHost=item["byHost"], start_amount=item["amount"]))
 
             db.session.add(session)
             db.session.commit()

@@ -22,6 +22,14 @@ class ItemBringResource(Resource):
                     if member_item := MemberItems.query.get((user.id, item_db.id)):
                         if not member_item.item_amount == item["bring_amount"] or not member_item.item_price == item["price"]:
                             item_db.amount_brought += (item["bring_amount"] - member_item.item_amount)
+
+                            if item_db.amount_brought < item_db.amount and item_db.amount > item_db.start_amount:
+                                if item["bring_amount"] >= item_db.start_amount:
+
+                                    item_db.amount -= (member_item.item_amount - item["bring_amount"])
+                                else:
+                                    item_db.amount = item_db.start_amount
+
                             member_item.item_price = item["price"]
                             member_item.item_amount = item["bring_amount"]
 
@@ -33,6 +41,7 @@ class ItemBringResource(Resource):
 
                     if item_db.amount_brought > item_db.amount:
                         item_db.amount = item_db.amount_brought
+
                 else:
                     error = {"error": "You are not part of this session", "status": HTTPStatus.UNAUTHORIZED}
 
