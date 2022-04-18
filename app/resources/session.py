@@ -4,7 +4,7 @@ from marshmallow import ValidationError
 from http import HTTPStatus
 from app.resources.jwt import *
 from app.models.session import *
-from app.models.user import User
+from app.models.user import User, MemberItems
 from app.models.item import Item
 from app.schemas.session import SessionSchema
 
@@ -15,10 +15,10 @@ class SessionResource(Resource):
         sessionSchema = SessionSchema()
         try:
             session_data = sessionSchema.load(data=json_data)
-            user = User.query.get(get_jwt_identity())
+            owner = User.query.get(get_jwt_identity())
             session = Session(name=session_data["name"], description=session_data["description"],
                               address=session_data["address"], date=session_data["date"],
-                              time=session_data["time"], owner_id=user.id)
+                              time=session_data["time"], owner_id=owner.id)
 
             for member in session_data["members"]:
                 user = User.query.filter_by(username=member).first()
@@ -32,6 +32,15 @@ class SessionResource(Resource):
 
             db.session.add(session)
             db.session.commit()
+
+            for item in session.items:
+                if item.byHost:
+                    host_item = MemberItems(user_id=owner.id, item_id=item.id, item_amount=item.amount)
+                    owner.items.append(host_item)
+                    item.amount_brought = host_item.item_amount
+
+            db.session.commit()
+
             return HTTPStatus.CREATED
 
         except ValidationError as e:
@@ -53,7 +62,7 @@ class SessionResource(Resource):
     @jwt_required()
     def get(self):
         if id := request.args.get("id"):
-            return {"session": Session.query.get(int(id)).get_data()}, HTTPStatus.OK
+            return {"session": Session.query.get(int(id)).get_data(user_id=get_jwt_identity())}, HTTPStatus.OK
         return {"sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).sessions],
                 "invited_sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).invited_sessions]}, HTTPStatus.OK
 
