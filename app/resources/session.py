@@ -35,7 +35,7 @@ class SessionResource(Resource):
 
             for item in session.items:
                 if item.byHost:
-                    host_item = MemberItems(user_id=owner.id, item_id=item.id, item_amount=item.amount)
+                    host_item = MemberItems(user_id=owner.id, item_id=item.id, item_amount=item.amount, session_id=session.id)
                     owner.items.append(host_item)
                     item.amount_brought = host_item.item_amount
 

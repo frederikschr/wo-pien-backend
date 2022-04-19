@@ -1,5 +1,5 @@
 from .db import db
-from .user import User
+from .user import User, MemberItems
 from .item import Item
 
 class Session(db.Model):
@@ -12,7 +12,10 @@ class Session(db.Model):
     date = db.Column(db.String(10))
     time = db.Column(db.String(5))
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    total_value = db.Column(db.Integer)
+    host_costs = db.Column(db.Integer)
     items = db.relationship("Item", backref="session", lazy=True)
+    member_items = db.relationship("MemberItems", backref="session", lazy=True)
 
     def get_data(self, user_id=None):
         session_data = {"id": self.id,
@@ -25,7 +28,9 @@ class Session(db.Model):
                 "members": [user.get_data() for user in self.members],
                 "invited": [user.get_data() for user in self.invites],
                 "items": [item.get_data() for item in self.items],
-                "items_by_host": [item.get_data() for item in self.items if item.byHost]}
+                "items_by_host": [item.get_data() for item in self.items if item.byHost],
+                "host_costs": self.host_costs,
+                "total_value": self.total_value}
         if user_id:
             session_data["my_items"] = [item.get_data() for item in User.query.get(user_id).items if Item.query.get(item.item_id) in self.items]
 

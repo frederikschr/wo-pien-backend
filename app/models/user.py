@@ -27,6 +27,7 @@ class MemberItems(db.Model):
     item_id = db.Column(db.Integer, db.ForeignKey("item.id"), primary_key=True)
     item_amount = db.Column(db.Integer)
     item_price = db.Column(db.Float)
+    session_id = db.Column(db.Integer, db.ForeignKey("session.id"))
 
     def get_data(self):
         member_items_data =  {

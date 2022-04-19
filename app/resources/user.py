@@ -6,7 +6,6 @@ from marshmallow import ValidationError
 from .jwt import *
 import datetime as dt
 from app.models.user import *
-from app.models.session import Session
 from app.schemas.user import UserSchema
 
 class UserResource(Resource):
