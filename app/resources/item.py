@@ -21,7 +21,7 @@ class ItemBringResource(Resource):
 
                     if member_item := MemberItems.query.get((user.id, item_db.id)):
                         if not member_item.item_amount == item["bring_amount"] or not member_item.item_price == item["price"]:
-                            item_db.amount_brought += (item["bring_amount"] - member_item.item_amount)
+                            item_db.amount_brought += (int(item["bring_amount"]) - member_item.item_amount)
 
                             if item_db.amount_brought < item_db.amount and item_db.amount > item_db.start_amount:
                                 if item["bring_amount"] >= item_db.start_amount:
@@ -30,12 +30,14 @@ class ItemBringResource(Resource):
                                 else:
                                     item_db.amount = item_db.start_amount
 
+
                             member_item.item_price = item["price"]
                             member_item.item_amount = item["bring_amount"]
 
-
                     else:
-                        member_item = MemberItems(user_id=user.id, item_id=item_db.id, item_amount=item["bring_amount"], item_price=item["price"])
+                        member_item = MemberItems(user_id=user.id, item_id=item_db.id, item_amount=item["bring_amount"])
+                        if "item_price" in item:
+                            member_item.item_price = item["price"]
                         user.items.append(member_item)
                         item_db.amount_brought += item["bring_amount"]
 
