@@ -20,21 +20,19 @@ class ItemBringResource(Resource):
                 if user in session.members:
                     if item_db in session.items:
                         if member_item := MemberItems.query.get((user.id, item_db.id)):
-                            if not member_item.item_amount == item["bring_amount"] or not member_item.item_price == item["price"]:
-                                item_db.amount_brought += (int(item["bring_amount"]) - member_item.item_amount)
+                            item_db.amount_brought += (int(item["bring_amount"]) - member_item.item_amount)
 
-                                """
-                                if item_db.amount_brought < item_db.amount and item_db.amount > item_db.start_amount:
-                                    if item["bring_amount"] >= item_db.start_amount:
-                                        item_db.amount -= (member_item.item_amount - item["bring_amount"])
-                                    else:
-                                        item_db.amount = item_db.start_amount
-                                        
-                                """
-
-                                if item_db.amount > item_db.start_amount:
-
-
+                            if item_db.amount_brought < item_db.amount and item_db.amount > item_db.start_amount:
+                                print("here1")
+                                if item["bring_amount"] >= item_db.start_amount:
+                                    print("here2")
+                                    item_db.amount -= (member_item.item_amount - item["bring_amount"])
+                                else:
+                                    item_db.amount = item_db.start_amount
+                            
+                            if item in json_data["removed_items"]:
+                                db.session.delete(member_item)
+                            else:
                                 member_item.item_price = item["price"]
                                 member_item.item_amount = item["bring_amount"]
 
@@ -60,11 +58,14 @@ class ItemBringResource(Resource):
             if error:
                 return {"error": error["error"]}, error["status"]
 
+
+        """
         for item in json_data["removed_items"]:
             item = Item.query.get(item["id"])
             member_item = MemberItems.query.filter_by(item_id=item.id, user_id=user.id).first()
             db.session.delete(member_item)
             item.amount_brought -= member_item.item_amount
+        """
 
         total_value = 0
         host_costs = 0
