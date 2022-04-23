@@ -6,7 +6,8 @@ from app.resources.jwt import *
 from app.models.session import *
 from app.models.user import User, MemberItems
 from app.models.item import Item
-from app.schemas.session import SessionSchema
+from app.schemas.session.session import SessionSchema
+from app.schemas.session.session_edit import SessionEditSchema
 
 class SessionResource(Resource):
     @jwt_required()
@@ -66,6 +67,20 @@ class SessionResource(Resource):
         return {"sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).sessions],
                 "invited_sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).invited_sessions]}, HTTPStatus.OK
 
+
+class SessionEditResource(Resource):
+    @jwt_required()
+    def patch(self):
+        json_data = request.get_json()
+        user = User.query.get(get_jwt_identity())
+        session_edit_schema = SessionEditSchema()
+        try:
+            json_data["ids"]["user_id"] = get_jwt_identity()
+            edited_session_data = session_edit_schema.load(data=json_data)
+            return {"message": "Successfully edited session"}, HTTPStatus.OK
+
+        except ValidationError as e:
+            print(e.messages)
 
 
 

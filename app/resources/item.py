@@ -7,7 +7,7 @@ from app.models.item import Item
 from app.models.user import User, MemberItems
 from app.models.session import Session
 
-class ItemBringResource(Resource):
+class ItemResource(Resource):
     @jwt_required()
     def patch(self):
         json_data = request.get_json()
@@ -29,7 +29,7 @@ class ItemBringResource(Resource):
                                     item_db.amount -= (member_item.item_amount - item["bring_amount"])
                                 else:
                                     item_db.amount = item_db.start_amount
-                            
+
                             if item in json_data["removed_items"]:
                                 db.session.delete(member_item)
                             else:

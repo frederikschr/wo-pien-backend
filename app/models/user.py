@@ -30,7 +30,7 @@ class MemberItems(db.Model):
     session_id = db.Column(db.Integer, db.ForeignKey("session.id"))
 
     def get_data(self):
-        member_items_data =  {
+        member_items_data = {
             "user": User.query.get(self.user_id).get_data(),
             "bring_amount": self.item_amount,
             "price": self.item_price

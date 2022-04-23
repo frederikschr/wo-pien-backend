@@ -1,5 +1,4 @@
 from marshmallow import Schema, fields, validates, ValidationError
-from app.models.session import Session
 from app.models.user import User
 
 class SessionSchema(Schema):

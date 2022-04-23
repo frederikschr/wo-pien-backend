@@ -33,5 +33,9 @@ class Session(db.Model):
                 "total_value": self.total_value}
         if user_id:
             session_data["my_items"] = [item.get_data() for item in User.query.get(user_id).items if Item.query.get(item.item_id) in self.items]
+            my_costs = 0
+            for item in session_data["my_items"]:
+                my_costs += item["bring_amount"] * item["price"]
+            session_data["my_costs"] = my_costs
 
         return session_data
