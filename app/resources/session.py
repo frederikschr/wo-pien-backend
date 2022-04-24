@@ -93,9 +93,31 @@ class SessionEditResource(Resource):
                 if not member in session.members:
                     session.members.append(member)
 
+
             for item in session.items:
-                if item not in edited_session_data["items"]:
-                    session.items.remove(item)
+
+                print(item.bringings)
+
+                for updated_item in edited_session_data["items"]:
+                    if item == updated_item:
+                        if item.amount < updated_item["amount"]:
+                            pass
+
+                        else:
+                            #subtract the amount from the already existing bringings
+                            pass
+
+                        continue
+
+                    else:
+                        if updated_item not in session.items:
+                            #create new item
+                            pass
+
+
+                session.items.remove(item)
+
+
 
             db.session.commit()
 
@@ -103,6 +125,3 @@ class SessionEditResource(Resource):
 
         except ValidationError as e:
             print(e.messages)
-
-
-

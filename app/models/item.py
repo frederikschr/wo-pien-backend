@@ -10,6 +10,7 @@ class Item(db.Model):
     amount_brought = db.Column(db.Integer, default=0)
     byHost = db.Column(db.Boolean, default=False)
     session_id = db.Column(db.Integer(), db.ForeignKey("session.id"))
+    bringings = db.relationship("MemberItems", backref="item", lazy=True)
 
     def get_data(self):
         return {"id": self.id,
