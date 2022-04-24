@@ -77,6 +77,28 @@ class SessionEditResource(Resource):
         try:
             json_data["ids"]["user_id"] = get_jwt_identity()
             edited_session_data = session_edit_schema.load(data=json_data)
+            session = Session.query.get(edited_session_data["ids"]["session_id"])
+
+            session.address = edited_session_data["address"]
+            session.date = edited_session_data["date"]
+            session.time = edited_session_data["time"]
+
+            for member in session.members:
+                if not member.username in edited_session_data["members"] and member.id != session.owner_id:
+                    print(f"removed {member.username}")
+                    session.members.remove(member)
+
+            for member in edited_session_data["members"]:
+                member = User.query.filter_by(username=member).first()
+                if not member in session.members:
+                    session.members.append(member)
+
+            for item in session.items:
+                if item not in edited_session_data["items"]:
+                    session.items.remove(item)
+
+            db.session.commit()
+
             return {"message": "Successfully edited session"}, HTTPStatus.OK
 
         except ValidationError as e:
