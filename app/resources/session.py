@@ -53,12 +53,21 @@ class SessionResource(Resource):
         json_data = request.get_json()
         user = User.query.get(get_jwt_identity())
         session = Session.query.get(json_data["session"])
-        if json_data["accepted"]:
-            user.sessions.append(session)
-        user.invited_sessions.remove(session)
-        db.session.commit()
-        return {"message": f"You successfully joined {session.name}"} if json_data["accepted"] \
-                   else {"message": f"You successfully rejected {session.name}"}, HTTPStatus.OK
+        if session:
+            if json_data["accepted"]:
+                user.sessions.append(session)
+                user.invited_sessions.remove(session)
+                db.session.commit()
+                return {"message": f"You successfully joined {session.name}"} if json_data["accepted"] \
+                           else {"message": f"You successfully rejected {session.name}"}, HTTPStatus.OK
+
+            else:
+                error = {"message": "Missing accepted status in request", "status": HTTPStatus.BAD_REQUEST}
+
+        else:
+            error = {"message": "Session does not exist anymore", "status": HTTPStatus.NOT_FOUND}
+
+        return {"error": error["error"]}, error["status"]
 
     @jwt_required()
     def get(self):
@@ -72,7 +81,6 @@ class SessionEditResource(Resource):
     @jwt_required()
     def patch(self):
         json_data = request.get_json()
-        user = User.query.get(get_jwt_identity())
         session_edit_schema = SessionEditSchema()
         try:
             json_data["ids"]["user_id"] = get_jwt_identity()
@@ -85,38 +93,28 @@ class SessionEditResource(Resource):
 
             for member in session.members:
                 if not member.username in edited_session_data["members"] and member.id != session.owner_id:
-                    print(f"removed {member.username}")
                     session.members.remove(member)
 
             for member in edited_session_data["members"]:
                 member = User.query.filter_by(username=member).first()
                 if not member in session.members:
-                    session.members.append(member)
-
+                    session.invites.append(member)
 
             for item in session.items:
-
-                print(item.bringings)
-
+                found = False
                 for updated_item in edited_session_data["items"]:
-                    if item == updated_item:
-                        if item.amount < updated_item["amount"]:
-                            pass
-
-                        else:
-                            #subtract the amount from the already existing bringings
-                            pass
+                    if item.id == updated_item["id"]:
+                        found = True
+                        item.start_amount = updated_item["amount"]
+                        item.amount = updated_item["amount"]
 
                         continue
 
-                    else:
-                        if updated_item not in session.items:
-                            #create new item
-                            pass
+                if not found:
+                    for bringing in item.bringings:
+                        db.session.delete(bringing)
 
-
-                session.items.remove(item)
-
+                    db.session.delete(item)
 
 
             db.session.commit()
@@ -125,3 +123,37 @@ class SessionEditResource(Resource):
 
         except ValidationError as e:
             print(e.messages)
+
+    @jwt_required()
+    def delete(self):
+        json_data = request.get_json()
+        user = User.query.get(get_jwt_identity())
+        if "session_id" in json_data:
+            session = Session.query.get(json_data["session_id"])
+            if session:
+                if session.owner_id == user.id:
+
+                    for bringing in session.member_items:
+                        db.session.delete(bringing)
+
+                    for item in session.items:
+                        db.session.delete(item)
+
+                    db.session.delete(session)
+                    db.session.commit()
+
+                    return {"message": f"Successfully deleted {session.name}"}, HTTPStatus.OK
+
+                else:
+                    error = {"message": "You are not the owner of this session", "status": HTTPStatus.UNAUTHORIZED}
+
+            else:
+                error = {"message": "Session does not exist", "status": HTTPStatus.BAD_REQUEST}
+
+        else:
+            error = {"message": "Missing session_id in request body", "status": HTTPStatus.BAD_REQUEST}
+
+        return {"error": error["error"]}, error["status"]
+
+
+

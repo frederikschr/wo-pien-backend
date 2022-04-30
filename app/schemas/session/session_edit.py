@@ -37,7 +37,7 @@ class SessionEditSchema(Schema):
     def validate_address(self, address):
         if len(address) < 8:
             raise ValidationError("Address must be at least 8 characters long")
-        elif len(address) > 25:
+        elif len(address) > 35:
             raise ValidationError("Address must be 25 or less characters long")
 
 
