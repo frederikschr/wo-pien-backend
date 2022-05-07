@@ -7,7 +7,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True)
     email = db.Column(db.String(35))
-    password = db.Column(db.String(20))
+    password = db.Column(db.String(80))
     owned_sessions = db.relationship("Session", backref="owner", lazy=True)
     sessions = db.relationship("Session", secondary=session_members, lazy="subquery", backref=db.backref("members", lazy=True))
     invited_sessions = db.relationship("Session", secondary=session_invites, lazy="subquery", backref=db.backref("invites", lazy=True))
