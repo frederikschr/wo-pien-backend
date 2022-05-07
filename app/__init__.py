@@ -14,7 +14,7 @@ app = Flask(__name__)
 def create_app():
     #app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
     app.config["SECRET_KEY"] = "secret!"
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
     app.config['CORS_HEADERS'] = 'Content-Type'
 
     db.init_app(app)
