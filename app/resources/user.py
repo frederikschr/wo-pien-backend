@@ -48,7 +48,7 @@ class UserResource(Resource):
 
                 check_sessions(user)
 
-                return {"user": user.get_data(), "token": access_token}, HTTPStatus.OK
+                return {"user": user.get_data(), "token": access_token, "all_users": [user.username for user in User.query.all()]}, HTTPStatus.OK
             else:
                 data = {"error": "Incorrect password", "status": HTTPStatus.FORBIDDEN}
         else:
