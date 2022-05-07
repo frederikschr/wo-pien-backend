@@ -17,7 +17,8 @@ class User(db.Model):
     def get_data(self):
         return {"id": self.id,
                 "username": self.username,
-                "email": self.email}
+                "email": self.email,
+                "all_users": [user.username for user in User.query.all()]}
 
 
 class MemberItems(db.Model):

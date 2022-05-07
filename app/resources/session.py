@@ -72,7 +72,10 @@ class SessionResource(Resource):
     @jwt_required()
     def get(self):
         if id := request.args.get("id"):
-            return {"session": Session.query.get(int(id)).get_data(user_id=get_jwt_identity())}, HTTPStatus.OK
+            if Session.query.get(id):
+                return {"session": Session.query.get(int(id)).get_data(user_id=get_jwt_identity())}, HTTPStatus.OK
+            return {"error": "Session does not exist (anymore)"}, HTTPStatus.NOT_FOUND
+
         return {"sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).sessions],
                 "invited_sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).invited_sessions]}, HTTPStatus.OK
 
@@ -100,22 +103,28 @@ class SessionEditResource(Resource):
                 if not member in session.members:
                     session.invites.append(member)
 
-            for item in session.items:
-                found = False
-                for updated_item in edited_session_data["items"]:
-                    if item.id == updated_item["id"]:
-                        found = True
-                        item.start_amount = updated_item["amount"]
-                        item.amount = updated_item["amount"]
 
-                        continue
+            for updated_item in edited_session_data["items"]:
+                if "id" in updated_item:
+                    for item in session.items:
+                        if item.id == updated_item["id"]:
+                            item.start_amount = updated_item["amount"]
+                            item.amount = updated_item["amount"]
+                            break
 
-                if not found:
+                else:
+                    session.items.append(
+                        Item(name=updated_item["name"], amount=updated_item["amount"], byHost=updated_item["byHost"],
+                             start_amount=updated_item["amount"]))
+
+
+            if "del_items" in edited_session_data:
+                for del_item in edited_session_data["del_items"]:
+                    item = Item.query.get(del_item["id"])
                     for bringing in item.bringings:
                         db.session.delete(bringing)
 
                     db.session.delete(item)
-
 
             db.session.commit()
 

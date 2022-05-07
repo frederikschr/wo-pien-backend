@@ -12,6 +12,7 @@ class SessionEditSchema(Schema):
     time = fields.String(required=True)
     members = fields.List(fields.String(), required=True)
     items = fields.List(fields.Dict())
+    del_items = fields.List(fields.Dict())
 
     @validates("ids")
     def validates_ids(self, ids):
