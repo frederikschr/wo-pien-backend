@@ -8,12 +8,14 @@ from app.models.user import User, MemberItems
 from app.models.item import Item
 from app.schemas.session.session import SessionSchema
 from app.schemas.session.session_edit import SessionEditSchema
+from app.schemas.item.item_create import ItemCreateSchema
 
 class SessionResource(Resource):
     @jwt_required()
     def post(self):
         json_data = request.get_json()
         sessionSchema = SessionSchema()
+        item_create_schema = ItemCreateSchema()
         try:
             session_data = sessionSchema.load(data=json_data)
             owner = User.query.get(get_jwt_identity())
@@ -29,7 +31,11 @@ class SessionResource(Resource):
                     session.members.append(user)
 
             for item in session_data["items"]:
-                session.items.append(Item(name=item["name"], amount=item["amount"], byHost=item["byHost"], start_amount=item["amount"]))
+                try:
+                    item_data = item_create_schema.load(data=item)
+                    session.items.append(Item(name=item_data["name"], amount=item_data["amount"], byHost=item_data["byHost"], start_amount=item_data["amount"]))
+                except ValidationError as e:
+                    return e.messages, HTTPStatus.BAD_REQUEST
 
             db.session.add(session)
             db.session.commit()
@@ -46,7 +52,6 @@ class SessionResource(Resource):
 
         except ValidationError as e:
             return e.messages, HTTPStatus.BAD_REQUEST
-
 
     @jwt_required()
     def patch(self):
@@ -79,12 +84,12 @@ class SessionResource(Resource):
         return {"sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).sessions],
                 "invited_sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).invited_sessions]}, HTTPStatus.OK
 
-
 class SessionEditResource(Resource):
     @jwt_required()
     def patch(self):
         json_data = request.get_json()
         session_edit_schema = SessionEditSchema()
+        item_create_schema = ItemCreateSchema()
         try:
             json_data["ids"]["user_id"] = get_jwt_identity()
             edited_session_data = session_edit_schema.load(data=json_data)
@@ -103,20 +108,26 @@ class SessionEditResource(Resource):
                 if not member in session.members:
                     session.invites.append(member)
 
-
             for updated_item in edited_session_data["items"]:
                 if "id" in updated_item:
                     for item in session.items:
                         if item.id == updated_item["id"]:
-                            item.start_amount = updated_item["amount"]
-                            item.amount = updated_item["amount"]
-                            break
+                            if updated_item["amount"] > 0 and updated_item["amount"] < 1000:
+                                item.start_amount = updated_item["amount"]
+                                item.amount = updated_item["amount"]
+                                break
+                            else:
+                                return {'amount': ['Amount must be between 1 and 1000']}, HTTPStatus.BAD_REQUEST
 
                 else:
-                    session.items.append(
-                        Item(name=updated_item["name"], amount=updated_item["amount"], byHost=updated_item["byHost"],
-                             start_amount=updated_item["amount"]))
+                    try:
+                        item_create_schema.load(data=updated_item)
+                        session.items.append(
+                            Item(name=item_create_schema["name"], amount=item_create_schema["amount"], byHost=item_create_schema["byHost"],
+                                 start_amount=item_create_schema["amount"]))
 
+                    except ValidationError as e:
+                        return e.messages, HTTPStatus.BAD_REQUEST
 
             if "del_items" in edited_session_data:
                 for del_item in edited_session_data["del_items"]:
@@ -131,7 +142,7 @@ class SessionEditResource(Resource):
             return {"message": "Successfully edited session"}, HTTPStatus.OK
 
         except ValidationError as e:
-            print(e.messages)
+            return e.messages, HTTPStatus.BAD_REQUEST
 
     @jwt_required()
     def delete(self):
