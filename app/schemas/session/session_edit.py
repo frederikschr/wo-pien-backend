@@ -1,6 +1,7 @@
 from marshmallow import Schema, fields, validates, ValidationError
 from app.models.user import User
 from app.models.session import Session
+from app.models.item import Item
 
 class SessionEditSchema(Schema):
     class Meta:
@@ -33,6 +34,13 @@ class SessionEditSchema(Schema):
         for item in items:
             if len(item["name"]) > 20:
                 raise ValidationError(f"Item {item['name']} has exceeded the maximal length of 20 characters")
+
+    @validates("del_items")
+    def validate_del_items(self, del_items):
+        for del_item in del_items:
+            del_item = Item.query.get(del_item["id"])
+            if not del_item:
+                raise ValidationError(f"Item does not exist anymore")
 
     @validates("address")
     def validate_address(self, address):

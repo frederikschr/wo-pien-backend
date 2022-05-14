@@ -6,7 +6,7 @@ from app.resources.jwt import *
 from app.models.session import *
 from app.models.user import User, MemberItems
 from app.models.item import Item
-from app.schemas.session.session import SessionSchema
+from app.schemas.session.session_create import SessionSchema
 from app.schemas.session.session_edit import SessionEditSchema
 from app.schemas.item.item_create import ItemCreateSchema
 

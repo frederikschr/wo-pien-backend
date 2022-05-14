@@ -1,3 +1,4 @@
+import base64
 from flask_restful import Resource
 from flask import request
 from http import HTTPStatus
@@ -6,7 +7,7 @@ from marshmallow import ValidationError
 from .jwt import *
 import datetime as dt
 from app.models.user import *
-from app.schemas.user import UserSchema
+from app.schemas.user import UserSchema, ProfileSchema
 import time
 
 def check_sessions(user):
@@ -55,6 +56,57 @@ class UserResource(Resource):
             data = {"error": "User does not exist", "status": HTTPStatus.NOT_FOUND}
 
         return {"error": data["error"]}, data["status"]
+
+
+class ProfileResource(Resource):
+    @jwt_required()
+    def post(self):
+        user = User.query.get(get_jwt_identity())
+        json_data = request.get_json()
+        profileSchema = ProfileSchema()
+        try:
+            json_data["user_id"] = user.id
+            profile_data = profileSchema.load(data=json_data)
+
+            user.username = profile_data["username"]
+            user.email = profile_data["email"]
+            user.promille_record = profile_data["promille_record"]
+
+            db.session.commit()
+
+            return {"message": "Successfully updated profile"}, HTTPStatus.OK
+
+        except ValidationError as e:
+            return e.messages, HTTPStatus.BAD_REQUEST
+
+    @jwt_required()
+    def get(self):
+        return {"user": User.query.get(get_jwt_identity()).get_data()}, HTTPStatus.OK
+
+
+class AvatarResource(Resource):
+    @jwt_required()
+    def post(self):
+        file = request.files["file"]
+
+        print(file)
+
+        if file:
+            user = User.query.get(get_jwt_identity())
+            file_data = file.read()
+            user.avatar_base64 = base64.b64encode(file_data).decode("ascii")
+            db.session.commit()
+
+            return {"message": "Successfully uploaded avatar"}, HTTPStatus.OK
+
+        else:
+            return {"error": "File is missing"}, HTTPStatus.NOT_FOUND
+
+
+
+
+
+
 
 
 

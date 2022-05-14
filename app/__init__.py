@@ -3,7 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 from .models.db import db
-from .resources.user import UserResource
+from .resources.user import UserResource, ProfileResource, AvatarResource
 from .resources.session import SessionResource, SessionEditResource
 from .resources.item import ItemBringResource
 from .resources.jwt import jwt
@@ -33,6 +33,8 @@ def register_resources():
     api.add_resource(SessionResource, "/session")
     api.add_resource(SessionEditResource, "/session-edit")
     api.add_resource(ItemBringResource, "/bring-items")
+    api.add_resource(ProfileResource, "/profile")
+    api.add_resource(AvatarResource, "/avatar")
 
 def create_database(app):
     db.create_all(app=app)
