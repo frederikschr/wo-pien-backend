@@ -8,20 +8,7 @@ from .jwt import *
 import datetime as dt
 from app.models.user import *
 from app.schemas.user import UserSchema, ProfileSchema
-import time
-
-def check_sessions(user):
-    today = time.strptime(str(dt.date.today()), "%Y-%m-%d")
-    for session in user.sessions:
-        if time.strptime(session.date, "%Y-%m-%d") < today:
-            for bringing in session.member_items:
-                db.session.delete(bringing)
-
-            for item in session.items:
-                db.session.delete(item)
-
-            db.session.delete(session)
-            db.session.commit()
+from app.utils import check_sessions
 
 class UserResource(Resource):
     def post(self):
@@ -88,9 +75,6 @@ class AvatarResource(Resource):
     @jwt_required()
     def post(self):
         file = request.files["file"]
-
-        print(file)
-
         if file:
             user = User.query.get(get_jwt_identity())
             file_data = file.read()

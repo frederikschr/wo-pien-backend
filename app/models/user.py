@@ -10,6 +10,7 @@ class User(db.Model):
     password = db.Column(db.String())
     avatar_base64 = db.Column(db.String())
     promille_record = db.Column(db.Float(), default=0.0)
+    sessions_attended = db.Column(db.Integer, default=0)
     owned_sessions = db.relationship("Session", backref="owner", lazy=True)
     sessions = db.relationship("Session", secondary=session_members, lazy="subquery", backref=db.backref("members", lazy=True))
     invited_sessions = db.relationship("Session", secondary=session_invites, lazy="subquery", backref=db.backref("invites", lazy=True))
@@ -21,7 +22,8 @@ class User(db.Model):
                 "username": self.username,
                 "email": self.email,
                 "avatar": self.avatar_base64,
-                "promille_record": self.promille_record}
+                "promille_record": self.promille_record,
+                "sessions_attended": self.sessions_attended}
 
 class MemberItems(db.Model):
     __tablename__ = "member_items"
