@@ -1,4 +1,5 @@
 import base64
+import os
 from flask_restful import Resource
 from flask import request
 from http import HTTPStatus
@@ -16,7 +17,7 @@ class UserResource(Resource):
         userSchema = UserSchema()
         try:
             user_data = userSchema.load(data=json_data)
-            user = User(username=user_data["name"], email=user_data["email"], password=generate_password_hash(user_data["password"], "sha256"))
+            user = User(username=user_data["name"], email=user_data["email"], password=generate_password_hash(user_data["password"], "sha256"), avatar_base64=os.environ.get("DEFAULT_AVATAR"))
             db.session.add(user)
             db.session.commit()
             return {"message": f"Successfully created {user.username}"}, HTTPStatus.CREATED
