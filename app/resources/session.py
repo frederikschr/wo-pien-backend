@@ -121,10 +121,10 @@ class SessionEditResource(Resource):
 
                 else:
                     try:
-                        item_create_schema.load(data=updated_item)
+                        item_data = item_create_schema.load(data=updated_item)
                         session.items.append(
-                            Item(name=item_create_schema["name"], amount=item_create_schema["amount"], byHost=item_create_schema["byHost"],
-                                 start_amount=item_create_schema["amount"]))
+                            Item(name=item_data["name"], amount=item_data["amount"], byHost=item_data["byHost"],
+                                 start_amount=item_data["amount"]))
 
                     except ValidationError as e:
                         return e.messages, HTTPStatus.BAD_REQUEST

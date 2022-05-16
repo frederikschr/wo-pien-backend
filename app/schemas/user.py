@@ -11,8 +11,8 @@ class UserSchema(Schema):
 
     @validates("name")
     def validate_name(self, name):
-        if len(name) < 6:
-            raise ValidationError("Name must me at least 6 characters long")
+        if len(name) < 3:
+            raise ValidationError("Name must me at least 3 characters long")
         elif len(name) > 20:
             raise ValidationError("Name must be 20 or less characters long")
         elif User.query.filter_by(username=name).first():
@@ -44,8 +44,8 @@ class ProfileSchema(Schema):
 
     @validates("username")
     def validate_username(self, username):
-        if len(username) < 6:
-            raise ValidationError("Name must me at least 6 characters long")
+        if len(username) < 3:
+            raise ValidationError("Name must me at least 3 characters long")
         elif len(username) > 20:
             raise ValidationError("Name must be 20 or less characters long")
 
