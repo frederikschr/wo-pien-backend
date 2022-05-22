@@ -74,6 +74,9 @@ class SessionResource(Resource):
 
     @jwt_required()
     def get(self):
+
+        print(get_jwt_identity())
+
         if id := request.args.get("id"):
             if Session.query.get(id):
                 return {"session": Session.query.get(int(id)).get_data(user_id=get_jwt_identity())}, HTTPStatus.OK
