@@ -1,7 +1,7 @@
 from marshmallow import Schema, fields, validates, ValidationError, validates_schema
 from app.models.session import Session
 from app.models.item import Item
-from app.models.user import MemberItems
+from app.models.user import MemberItems, User
 
 class ItemBringSchema(Schema):
     class meta:
@@ -21,40 +21,45 @@ class ItemBringSchema(Schema):
     @validates_schema()
     def validate_items(self, data, **kwargs):
         if session := Session.query.get(data["session_id"]):
-            for removed_item in data["removed_items"]:
-                if "id" in removed_item:
-                    item_db = Item.query.get(removed_item["id"])
-                    if item_db:
-                        if item_db in session.items:
-                            if not MemberItems.query.get((data["user_id"], item_db.id)):
-                                raise ValidationError(f"Bringing for item {item_db.name} does not exist")
-                        else:
-                            raise ValidationError(f"{item_db.name} is not part of {session.name}")
 
-                    else:
-                        raise ValidationError("Item does not exist (anymore)")
+            if User.query.get(data["user_id"]) in session.members:
 
-                else:
-                    raise ValidationError("Items must contain ID")
-
-            for updated_item in data["updated_items"]:
-                if "id" in updated_item:
-                    item_db = Item.query.get(updated_item["id"])
-                    if item_db:
-                        if item_db in session.items:
-                            print(updated_item["bring_amount"])
-                            if updated_item["bring_amount"] != "":
-                                if updated_item["bring_amount"] < 1 or updated_item["bring_amount"] > 1000:
-                                    raise ValidationError("Bring amount must reach from 0 to 1000")
+                for removed_item in data["removed_items"]:
+                    if "id" in removed_item:
+                        item_db = Item.query.get(removed_item["id"])
+                        if item_db:
+                            if item_db in session.items:
+                                if not MemberItems.query.get((data["user_id"], item_db.id)):
+                                    raise ValidationError(f"Bringing for item {item_db.name} does not exist")
                             else:
-                                raise ValidationError(f"Amount for item {item_db.name} can't be empty")
+                                raise ValidationError(f"{item_db.name} is not part of {session.name}")
+
                         else:
-                            raise ValidationError(f"{item_db.name} is not part of {session.name}")
+                            raise ValidationError("Item does not exist (anymore)")
 
                     else:
-                        raise ValidationError("Item does not exist (anymore)")
+                        raise ValidationError("Items must contain ID")
 
-                else:
-                    raise ValidationError("Items must contain ID")
+                for updated_item in data["updated_items"]:
+                    if "id" in updated_item:
+                        item_db = Item.query.get(updated_item["id"])
+                        if item_db:
+                            if item_db in session.items:
+                                print(updated_item["bring_amount"])
+                                if updated_item["bring_amount"] != "":
+                                    if updated_item["bring_amount"] < 1 or updated_item["bring_amount"] > 1000:
+                                        raise ValidationError("Bring amount must reach from 0 to 1000")
+                                else:
+                                    raise ValidationError(f"Amount for item {item_db.name} can't be empty")
+                            else:
+                                raise ValidationError(f"{item_db.name} is not part of {session.name}")
+
+                        else:
+                            raise ValidationError("Item does not exist (anymore)")
+
+                    else:
+                        raise ValidationError("Items must contain ID")
+            else:
+                raise ValidationError("You have been removed from this session")
 
 

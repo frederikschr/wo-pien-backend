@@ -4,6 +4,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 from .models.db import db
+from app.models.statistics import Statistics
 from .resources.user import UserResource, ProfileResource, AvatarResource
 from .resources.session import SessionResource, SessionEditResource
 from .resources.item import ItemBringResource

@@ -65,14 +65,12 @@ class SessionResource(Resource):
                 db.session.commit()
                 return {"message": f"You successfully joined {session.name}"} if json_data["accepted"] \
                            else {"message": f"You successfully rejected {session.name}"}, HTTPStatus.OK
-
             else:
-                error = {"message": "Missing accepted status in request", "status": HTTPStatus.BAD_REQUEST}
-
+                error = "Missing accepted status in request"
         else:
-            error = {"message": "Session does not exist anymore", "status": HTTPStatus.NOT_FOUND}
+            error = "Session does not exist anymore"
 
-        return {"error": error["error"]}, error["status"]
+        return {"error": [error]}
 
     @jwt_required()
     def get(self):
