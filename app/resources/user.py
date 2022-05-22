@@ -35,6 +35,8 @@ class UserResource(Resource):
                 expires = dt.timedelta(hours=3)
                 access_token = create_access_token(identity=user.id, expires_delta=expires, fresh=True)
 
+                print(access_token)
+
                 check_sessions(user)
 
                 return {"user": user.get_data(), "token": access_token, "all_users": [user.username for user in User.query.all()]}, HTTPStatus.OK
