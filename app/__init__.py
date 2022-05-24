@@ -13,6 +13,8 @@ from .resources.jwt import jwt
 def create_app():
     app = Flask(__name__)
 
+    """
+
     status = os.environ.get("STATUS")
     if status == "Production":
         config = ProductionConfig
@@ -21,6 +23,14 @@ def create_app():
         config = DevelopmentConfig
 
     app.config.from_object(config)
+    
+    """
+    SECRET_KEY = os.environ.get("SECRET_KEY")
+    CORS_HEADERS = "Content-Type"
+
+    app.config["SECRET_KEY"] = SECRET_KEY
+    app.config["CORS_HEADERS"] = CORS_HEADERS
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
 
     db.init_app(app)
     jwt.init_app(app)
