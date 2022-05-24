@@ -1,7 +1,7 @@
 import os
 
 class Config():
-    SECRET_KEY = os.urandom(24)
+    SECRET_KEY = os.environ.get("SECRET_KEY")
     CORS_HEADERS = "Content-Type"
 
 class DevelopmentConfig(Config):
