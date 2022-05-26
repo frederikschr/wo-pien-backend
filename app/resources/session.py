@@ -59,18 +59,27 @@ class SessionResource(Resource):
         user = User.query.get(get_jwt_identity())
         session = Session.query.get(json_data["session"])
         if session:
-            if json_data["accepted"]:
-                user.sessions.append(session)
+            if not user in session.members:
                 user.invited_sessions.remove(session)
+                if json_data["accepted"]:
+                    user.sessions.append(session)
+                    message = {"message": f"You successfully joined {session.name}"}
+                else:
+                    message = {"message": f"You successfully rejected {session.name}"}
                 db.session.commit()
-                return {"message": f"You successfully joined {session.name}"} if json_data["accepted"] \
-                           else {"message": f"You successfully rejected {session.name}"}, HTTPStatus.OK
-            else:
-                error = "Missing accepted status in request"
-        else:
-            error = "Session does not exist anymore"
+                return message, HTTPStatus.OK
 
-        return {"error": [error]}
+            else:
+                if not session.owner_id == user.id:
+                    session.members.remove(user)
+                    return {"message": f"You successfully left {session.name}"}, HTTPStatus.OK
+
+                else:
+                    error = "Owner can not leave the session"
+        else:
+            error = "Session does not exist (anymore)"
+
+        return {"error": [error]}, HTTPStatus.BAD_REQUEST
 
     @jwt_required()
     def get(self):

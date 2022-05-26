@@ -27,10 +27,12 @@ def create_app():
     """
     SECRET_KEY = os.environ.get("SECRET_KEY")
     CORS_HEADERS = "Content-Type"
+    SQLALCHEMY_DATABAS_URI = "sqlite:///database.db"
 
     app.config["SECRET_KEY"] = SECRET_KEY
     app.config["CORS_HEADERS"] = CORS_HEADERS
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
+    app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABAS_URI
+    #app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
 
     db.init_app(app)
     jwt.init_app(app)
