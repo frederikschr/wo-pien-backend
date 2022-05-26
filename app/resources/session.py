@@ -59,7 +59,7 @@ class SessionResource(Resource):
         user = User.query.get(get_jwt_identity())
         session = Session.query.get(json_data["session"])
         if session:
-            if not user in session.members:
+            if not session in user.invited_sessions:
                 user.invited_sessions.remove(session)
                 if json_data["accepted"]:
                     user.sessions.append(session)

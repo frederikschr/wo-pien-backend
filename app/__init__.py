@@ -1,5 +1,4 @@
 import os
-from app.app_config import DevelopmentConfig, ProductionConfig
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
