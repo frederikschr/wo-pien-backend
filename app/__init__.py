@@ -15,27 +15,18 @@ def create_app():
 
     status = os.environ.get("STATUS")
 
-    print(f"Running in: {status}")
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+    app.config["CORS_HEADERS"] = "Content-Type"
 
     if status == "Production":
-        config = ProductionConfig
+        print("Loading Production config...")
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
+        app.config["DEBUG"] = False
 
     elif status == "Development":
-        config = DevelopmentConfig
-
-    app.config.from_object(config)
-    
-    """
-    SECRET_KEY = os.environ.get("SECRET_KEY")
-    CORS_HEADERS = "Content-Type"
-    SQLALCHEMY_DATABAS_URI = "sqlite:///database.db"
-
-    app.config["SECRET_KEY"] = SECRET_KEY
-    app.config["CORS_HEADERS"] = CORS_HEADERS
-    app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABAS_URI
-    #app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
-    
-    """
+        print("Loading Development config...")
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+        app.config["DEBUG"] = True
 
     db.init_app(app)
     jwt.init_app(app)
