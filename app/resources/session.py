@@ -72,6 +72,7 @@ class SessionResource(Resource):
             else:
                 if not session.owner_id == user.id:
                     session.members.remove(user)
+                    db.session.commit()
                     return {"message": f"You successfully left {session.name}"}, HTTPStatus.OK
 
                 else:
