@@ -9,6 +9,7 @@ from app.models.item import Item
 from app.schemas.session.session_create import SessionSchema
 from app.schemas.session.session_edit import SessionEditSchema
 from app.schemas.item.item_create import ItemCreateSchema
+from app.utils import del_all_associates_user
 
 class SessionResource(Resource):
     @jwt_required()
@@ -73,6 +74,7 @@ class SessionResource(Resource):
                 if not session.owner_id == user.id:
                     session.members.remove(user)
                     db.session.commit()
+                    del_all_associates_user(user, session)
                     return {"message": f"You successfully left {session.name}"}, HTTPStatus.OK
 
                 else:

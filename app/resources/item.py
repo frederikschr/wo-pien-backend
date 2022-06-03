@@ -56,6 +56,14 @@ class ItemBringResource(Resource):
                 if item_db.amount_brought > item_db.amount:
                     item_db.amount = item_db.amount_brought
 
+
+            for item in item_bring_data["new_items"]:
+                item_db = Item(name=item["name"], amount=item["amount"], start_amount=item["amount"], session_id=session.id, amount_brought=item["amount"])
+                db.session.add(item_db)
+                item = Item.query.filter_by(name=item["name"]).first()
+                bringing = MemberItems(user_id=user.id, item_id=item.id, session_id=session.id, item_amount=item.amount)
+                db.session.add(bringing)
+
             total_value = 0
             host_costs = 0
             for member_item in session.member_items:
