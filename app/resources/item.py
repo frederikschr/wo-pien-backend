@@ -25,7 +25,7 @@ class ItemBringResource(Resource):
                 item_db = Item.query.get(item["id"])
                 member_item = MemberItems.query.get((user.id, item_db.id))
                 db.session.delete(member_item)
-                item_db.amount_brought -= int(item["bring_amount"])
+                item_db.amount_brought -= item["bring_amount"]
 
             for item in item_bring_data["updated_items"]:
 

@@ -48,6 +48,11 @@ class ItemBringSchema(Schema):
                                 if updated_item["bring_amount"] != "":
                                     if updated_item["bring_amount"] < 1 or updated_item["bring_amount"] > 1000:
                                         raise ValidationError("Bring amount must reach from 0 to 1000")
+
+                                    else:
+                                        if "price" in updated_item:
+                                            if updated_item["price"] < 0 or updated_item["price"] > 1000:
+                                                raise ValidationError("Price must reach from 0 to 1000")
                                 else:
                                     raise ValidationError(f"Amount for item {item_db.name} can't be empty")
                             else:
