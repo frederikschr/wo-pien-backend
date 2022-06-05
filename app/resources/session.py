@@ -112,6 +112,7 @@ class SessionEditResource(Resource):
             for member in session.members:
                 if not member.username in edited_session_data["members"] and member.id != session.owner_id:
                     session.members.remove(member)
+                    del_all_associates_user(member, session)
 
             for member in edited_session_data["members"]:
                 member = User.query.filter_by(username=member).first()

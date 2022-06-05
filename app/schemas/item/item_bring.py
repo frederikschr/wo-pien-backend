@@ -23,7 +23,6 @@ class ItemBringSchema(Schema):
     def validate_items(self, data, **kwargs):
         if session := Session.query.get(data["session_id"]):
             if User.query.get(data["user_id"]) in session.members:
-
                 for removed_item in data["removed_items"]:
                     if "id" in removed_item:
                         item_db = Item.query.get(removed_item["id"])
@@ -31,6 +30,7 @@ class ItemBringSchema(Schema):
                             if item_db in session.items:
                                 if not MemberItems.query.get((data["user_id"], item_db.id)):
                                     raise ValidationError(f"Bringing for item {item_db.name} does not exist")
+
                             else:
                                 raise ValidationError(f"{item_db.name} is not part of {session.name}")
 
@@ -64,12 +64,12 @@ class ItemBringSchema(Schema):
                     else:
                         raise ValidationError("Items must contain ID")
 
+
                 for new_item in data["new_items"]:
                     item_db = Item.query.filter_by(name=new_item["name"]).first()
                     if not item_db:
                         if new_item["amount"] > 1000 or new_item["amount"] < 1:
                             raise ValidationError("Amount must reach from 1 to 1000")
-
                     else:
                         if item_db in session.items:
                             raise ValidationError(f"Item {new_item['name']} already exists")

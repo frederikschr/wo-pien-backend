@@ -16,6 +16,7 @@ class Session(db.Model):
     host_costs = db.Column(db.Integer)
     items = db.relationship("Item", backref="session", lazy=True)
     member_items = db.relationship("MemberItems", backref="session", lazy=True)
+    bringings = db.Column(db.JSON)
 
     def get_data(self, user_id=None):
         session_data = {"id": self.id,
@@ -30,7 +31,8 @@ class Session(db.Model):
                 "items": [item.get_data() for item in self.items],
                 "items_by_host": [item.get_data() for item in self.items if item.byHost],
                 "host_costs": self.host_costs,
-                "total_value": self.total_value}
+                "total_value": self.total_value,
+                "member_items": self.bringings}
         if user_id:
             session_data["my_items"] = [item.get_data() for item in User.query.get(user_id).items if Item.query.get(item.item_id) in self.items]
             my_costs = 0

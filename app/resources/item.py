@@ -8,6 +8,7 @@ from app.models.user import User, MemberItems
 from app.models.session import Session
 from app.schemas.item.item_bring import ItemBringSchema
 from marshmallow import ValidationError
+from app.utils import member_items_to_dict
 
 class ItemBringResource(Resource):
     @jwt_required()
@@ -75,6 +76,7 @@ class ItemBringResource(Resource):
 
             session.total_value = total_value
             session.host_costs = host_costs
+            session.bringings = member_items_to_dict(session.member_items)
 
             db.session.commit()
 
