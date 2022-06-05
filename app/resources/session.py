@@ -9,7 +9,7 @@ from app.models.item import Item
 from app.schemas.session.session_create import SessionSchema
 from app.schemas.session.session_edit import SessionEditSchema
 from app.schemas.item.item_create import ItemCreateSchema
-from app.utils import del_all_associates_user
+from app.utils import del_all_associates_user, member_items_to_dict
 
 class SessionResource(Resource):
     @jwt_required()
@@ -67,6 +67,9 @@ class SessionResource(Resource):
                     message = {"message": f"You successfully joined {session.name}"}
                 else:
                     message = {"message": f"You successfully rejected {session.name}"}
+
+                session.bringings = member_items_to_dict(session)
+
                 db.session.commit()
                 return message, HTTPStatus.OK
 
@@ -75,6 +78,7 @@ class SessionResource(Resource):
                     session.members.remove(user)
                     db.session.commit()
                     del_all_associates_user(user, session)
+                    session.bringings = member_items_to_dict(session)
                     return {"message": f"You successfully left {session.name}"}, HTTPStatus.OK
 
                 else:

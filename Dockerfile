@@ -1,4 +1,4 @@
-FROM python:3.8-alpine
+FROM python:3.8.3-slim-buster
 
 # copy the requirements file into the image
 COPY ./requirements.txt /app/requirements.txt

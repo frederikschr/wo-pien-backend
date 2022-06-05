@@ -29,16 +29,15 @@ def del_all_associates_session(session):
         db.session.delete(item)
     db.session.commit()
 
-def member_items_to_dict(member_items):
+def member_items_to_dict(session):
     user_costs = {}
-    for bringing in member_items:
-        print(bringing)
-        user = User.query.get(bringing.user_id)
+    for user in session.members:
         if user.username not in user_costs.keys():
             user_costs[user.username] = 0
+    member_items = session.member_items
+    for bringing in member_items:
+        user = User.query.get(bringing.user_id)
         user_costs[user.username] += bringing.item_amount * bringing.item_price
-
-    print(user_costs)
     return user_costs
 
 

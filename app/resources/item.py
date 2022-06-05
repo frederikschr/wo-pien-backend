@@ -76,7 +76,7 @@ class ItemBringResource(Resource):
 
             session.total_value = total_value
             session.host_costs = host_costs
-            session.bringings = member_items_to_dict(session.member_items)
+            session.bringings = member_items_to_dict(session)
 
             db.session.commit()
 

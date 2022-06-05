@@ -5,5 +5,5 @@ Flask-SQLAlchemy
 Flask-Marshmallow
 Flask-Cors
 gunicorn
-psycopg2
+psycopg2-binary
 requests
