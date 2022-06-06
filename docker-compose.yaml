@@ -1,0 +1,28 @@
+version: "3.1"
+
+services:
+  flask-app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+
+    environment:
+      - STATUS=Production
+      - DATABASE_URL=postgresql://xzncqnuuxlaqcj:641b45354a780f268dc65cffd84fd81b39ee8d976117ee464a6c284cf901dc79@ec2-34-246-227-219.eu-west-1.compute.amazonaws.com:5432/d49hb3sf5o69hp
+      - SECRET_KEY=\xac\x96\xe9\xeb 4\xb5\x7f\xdd\x93
+
+    ports:
+      - "5000"
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+
+    depends_on:
+      - flask-app
+
+    ports:
+      - "80:80"
+
+

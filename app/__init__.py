@@ -1,13 +1,16 @@
 import os
+import socket
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 from .models.db import db
-from app.models.statistics import Statistics
+from .models.statistics import Statistics
 from .resources.user import UserResource, ProfileResource, AvatarResource
 from .resources.session import SessionResource, SessionEditResource
 from .resources.item import ItemBringResource
 from .resources.jwt import jwt
+
+test = False
 
 def create_app():
     app = Flask(__name__)
@@ -34,6 +37,10 @@ def create_app():
     create_database(app)
 
     CORS(app, resources={r"/*":{'origins':"*"}})
+
+    @app.route('/')
+    def home():
+        return f"Welcome to WoPien backend from Container: {socket.gethostname()}!"
 
     return app
 

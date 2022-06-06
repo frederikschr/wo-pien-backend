@@ -1,7 +1,8 @@
 FROM python:3.8.3-slim-buster
 
 # copy the requirements file into the image
-COPY ./requirements.txt /app/requirements.txt
+
+COPY app/requirements.txt /app/requirements.txt
 
 # switch working directory
 WORKDIR /app
@@ -10,8 +11,10 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 # copy every content from the local file to the image
-COPY . /app
+COPY .. /app
 
-ENTRYPOINT [ "python" ]
+CMD gunicorn --bind 0.0.0.0:5000 main:app
 
-CMD ["main.py" ]
+#ENTRYPOINT [ "python" ]
+
+#CMD ["main.py" ]

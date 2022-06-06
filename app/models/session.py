@@ -16,7 +16,7 @@ class Session(db.Model):
     host_costs = db.Column(db.Integer)
     items = db.relationship("Item", backref="session", lazy=True)
     member_items = db.relationship("MemberItems", backref="session", lazy=True)
-    bringings = db.Column(db.JSON)
+    bringings = db.Column(db.JSON, default=[])
 
     def get_data(self, user_id=None):
         session_data = {"id": self.id,
