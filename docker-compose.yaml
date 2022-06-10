@@ -8,7 +8,7 @@ services:
 
     environment:
       - STATUS=Production
-      - DATABASE_URL=postgresql://xzncqnuuxlaqcj:641b45354a780f268dc65cffd84fd81b39ee8d976117ee464a6c284cf901dc79@ec2-34-246-227-219.eu-west-1.compute.amazonaws.com:5432/d49hb3sf5o69hp
+      - DATABASE_URL=postgresql://hvicqihaayikto:8fa070cf2c64080953c8776cf5f159dee79bb31f0c9e0505530c144e9f4d955c@ec2-63-32-248-14.eu-west-1.compute.amazonaws.com:5432/df5dkfh47cnp78
       - SECRET_KEY=\xac\x96\xe9\xeb 4\xb5\x7f\xdd\x93
 
     ports:
