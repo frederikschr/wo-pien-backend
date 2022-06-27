@@ -1,15 +1,15 @@
 from flask_restful import Resource
 from flask import request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from marshmallow import ValidationError
 from http import HTTPStatus
-from app.resources.jwt import *
-from app.models.session import *
-from app.models.user import User, MemberItems
-from app.models.item import Item
-from app.schemas.session.session_create import SessionSchema
-from app.schemas.session.session_edit import SessionEditSchema
-from app.schemas.item.item_create import ItemCreateSchema
-from app.utils import del_all_associates_user, member_items_to_dict
+from ..models.session import *
+from ..models.user import User, MemberItems
+from ..models.item import Item
+from ..schemas.session.session_create import SessionSchema
+from ..schemas.session.session_edit import SessionEditSchema
+from ..schemas.item.item_create import ItemCreateSchema
+from ..utils import del_all_associates_user, member_items_to_dict
 
 class SessionResource(Resource):
     @jwt_required()

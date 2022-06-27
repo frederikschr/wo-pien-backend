@@ -1,8 +1,8 @@
 import time
 import datetime as dt
-from app.models.db import db
-from app.models.item import Item
-from app.models.user import User
+from .models.db import db
+from .models.item import Item
+from .models.user import User
 
 def check_sessions(user):
     today = time.strptime(str(dt.date.today()), "%Y-%m-%d")

@@ -7,9 +7,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from marshmallow import ValidationError
 from .jwt import *
 import datetime as dt
-from app.models.user import *
-from app.schemas.user import UserSchema, ProfileSchema
-from app.utils import check_sessions
+from ..models.user import *
+from ..schemas.user import UserSchema, ProfileSchema
+from ..utils import check_sessions
 
 class UserResource(Resource):
     def post(self):

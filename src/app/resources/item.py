@@ -1,14 +1,14 @@
 from flask_restful import Resource
 from flask import request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from http import HTTPStatus
-from app.resources.jwt import *
-from app.models.db import db
-from app.models.item import Item
-from app.models.user import User, MemberItems
-from app.models.session import Session
-from app.schemas.item.item_bring import ItemBringSchema
 from marshmallow import ValidationError
-from app.utils import member_items_to_dict
+from ..models.db import db
+from ..models.item import Item
+from ..models.user import User, MemberItems
+from ..models.session import Session
+from ..schemas.item.item_bring import ItemBringSchema
+from ..utils import member_items_to_dict
 
 class ItemBringResource(Resource):
     @jwt_required()

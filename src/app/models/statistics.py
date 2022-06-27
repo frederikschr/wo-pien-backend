@@ -1,4 +1,4 @@
-from app.models.db import db
+from .db import db
 
 class Statistics(db.Model):
     __tablename__ = "statistics"

@@ -1,7 +1,7 @@
 from marshmallow import Schema, fields, validates, ValidationError, validates_schema
-from app.models.session import Session
-from app.models.item import Item
-from app.models.user import MemberItems, User
+from ...models.session import Session
+from ...models.item import Item
+from ...models.user import MemberItems, User
 
 class ItemBringSchema(Schema):
     class meta:

@@ -10,8 +10,6 @@ from .resources.session import SessionResource, SessionEditResource
 from .resources.item import ItemBringResource
 from .resources.jwt import jwt
 
-test = False
-
 def create_app():
     app = Flask(__name__)
 

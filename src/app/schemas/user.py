@@ -1,5 +1,5 @@
 from marshmallow import Schema, fields, validates, ValidationError, validates_schema
-from app.models.user import User
+from ..models.user import User
 
 class UserSchema(Schema):
     class meta:

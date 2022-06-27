@@ -1,27 +1,29 @@
 from marshmallow import Schema, fields, validates, ValidationError
-from app.models.user import User
-from app.models.session import Session
-from app.models.item import Item
+from ...models.user import User
 
-class SessionEditSchema(Schema):
+class SessionSchema(Schema):
     class Meta:
         ordered = True
 
-    ids = fields.Dict(required=True)
+    name = fields.String(required=True)
+    description = fields.String(required=False)
     address = fields.String(required=True)
     date = fields.String(required=True)
     time = fields.String(required=True)
     members = fields.List(fields.String(), required=True)
     items = fields.List(fields.Dict())
-    del_items = fields.List(fields.Dict())
 
-    @validates("ids")
-    def validates_ids(self, ids):
-        if Session.query.get(ids["session_id"]) == None:
-            raise ValidationError("Session does not exist")
-        else:
-            if Session.query.get(ids["session_id"]).owner_id != ids["user_id"]:
-                raise ValidationError("You are not the owner of this session")
+    @validates("name")
+    def validate_name(self, name):
+        if len(name) < 6:
+            raise ValidationError("Name must me at least 6 characters long")
+        elif len(name) > 30:
+            raise ValidationError("Name must be 30 or less characters long")
+
+    @validates("description")
+    def validate_description(self, description):
+        if len(description) > 300:
+            raise ValidationError("Description must be 300 or less characters long")
 
     @validates("members")
     def validate_members(self, members):
@@ -35,18 +37,10 @@ class SessionEditSchema(Schema):
             if len(item["name"]) > 20:
                 raise ValidationError(f"Item {item['name']} has exceeded the maximal length of 20 characters")
 
-    @validates("del_items")
-    def validate_del_items(self, del_items):
-        for del_item in del_items:
-            del_item = Item.query.get(del_item["id"])
-            if not del_item:
-                raise ValidationError(f"Item does not exist anymore")
-
     @validates("address")
     def validate_address(self, address):
         if len(address) < 8:
             raise ValidationError("Address must be at least 8 characters long")
         elif len(address) > 35:
             raise ValidationError("Address must be 25 or less characters long")
-
 
