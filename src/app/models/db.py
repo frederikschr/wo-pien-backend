@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+
 DB_NAME = "database.db"
 
 session_members = db.Table("session_member",

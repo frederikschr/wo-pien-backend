@@ -4,6 +4,7 @@ Flask-RESTful
 Flask-SQLAlchemy
 Flask-Marshmallow
 Flask-Cors
+Flask-Migrate
 gunicorn
 psycopg2-binary
 requests

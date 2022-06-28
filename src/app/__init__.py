@@ -3,6 +3,8 @@ import socket
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
+from flask_migrate import Migrate
+from .models.user import User
 from .models.db import db
 from .models.statistics import Statistics
 from .resources.user import UserResource, ProfileResource, AvatarResource
@@ -18,6 +20,8 @@ def create_app():
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
     app.config["CORS_HEADERS"] = "Content-Type"
 
+    migrate = Migrate()
+
     if status == "Production":
         print("Loading Production config...")
         app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
@@ -28,8 +32,12 @@ def create_app():
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
         app.config["DEBUG"] = True
 
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
+
     db.init_app(app)
     jwt.init_app(app)
+
+    migrate.init_app(app, db)
 
     register_resources(app)
     create_database(app)
