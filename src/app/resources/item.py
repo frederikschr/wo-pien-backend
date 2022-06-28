@@ -14,8 +14,9 @@ class ItemBringResource(Resource):
     @jwt_required()
     def patch(self):
         json_data = request.get_json()
-        user = User.query.get(get_jwt_identity())
-        json_data["user_id"] = get_jwt_identity()
+        identitiy = get_jwt_identity()
+        user = User.query.get(identitiy)
+        json_data["user_id"] = identitiy
         item_bring_schema = ItemBringSchema()
         try:
             item_bring_data = item_bring_schema.load(data=json_data)

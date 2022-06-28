@@ -5,7 +5,7 @@ from flask import request
 from http import HTTPStatus
 from werkzeug.security import generate_password_hash, check_password_hash
 from marshmallow import ValidationError
-from .jwt import *
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 import datetime as dt
 from ..models.user import *
 from ..schemas.user import UserSchema, ProfileSchema
@@ -42,7 +42,6 @@ class UserResource(Resource):
             data = {"error": "User does not exist", "status": HTTPStatus.NOT_FOUND}
 
         return {"error": data["error"]}, data["status"]
-
 
 class ProfileResource(Resource):
     @jwt_required()
