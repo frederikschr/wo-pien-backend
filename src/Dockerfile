@@ -11,6 +11,6 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 # copy every content from the local file to the image
-COPY ../.. /app
+COPY . /app
 
 CMD gunicorn --bind 0.0.0.0:5000 main:app --access-logformat STRING
