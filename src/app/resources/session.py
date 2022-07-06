@@ -103,17 +103,12 @@ class SessionEditResource(Resource):
     @jwt_required()
     def patch(self):
         json_data = request.get_json()
-
-        print(json_data)
-
         session_edit_schema = SessionEditSchema()
         item_create_schema = ItemCreateSchema()
         try:
             json_data["ids"]["user_id"] = get_jwt_identity()
             edited_session_data = session_edit_schema.load(data=json_data)
             session = Session.query.get(edited_session_data["ids"]["session_id"])
-
-            print(edited_session_data)
 
             session.address = edited_session_data["address"]
             session.coords = edited_session_data["coords"]
