@@ -5,81 +5,67 @@ from http import HTTPStatus
 from marshmallow import ValidationError
 from ..models.db import db
 from ..models.item import Item
-from ..models.user import User, MemberItems
-from ..models.session import Session
+from ..models.user import User
+from ..models.member_item_bringing import Member_Item_Bringing
 from ..schemas.item.item_bring import ItemBringSchema
-from ..utils import member_items_to_dict
+from ..utils import calculate_session_metrics
 
 class ItemBringResource(Resource):
     @jwt_required()
     def patch(self):
         json_data = request.get_json()
-        identitiy = get_jwt_identity()
-        user = User.query.get(identitiy)
-        json_data["user_id"] = identitiy
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        json_data["user_id"] = user_id
         item_bring_schema = ItemBringSchema()
         try:
             item_bring_data = item_bring_schema.load(data=json_data)
 
-            session = Session.query.get(item_bring_data["session_id"])
+            session = item_bring_data["session_db"]
 
             for item in item_bring_data["removed_items"]:
-                item_db = Item.query.get(item["id"])
-                member_item = MemberItems.query.get((user.id, item_db.id))
+                item_db = item["item_db"]
+                member_item = Member_Item_Bringing.query.get((user.id, item_db.id))
                 db.session.delete(member_item)
                 item_db.amount_brought -= item["bring_amount"]
 
             for item in item_bring_data["updated_items"]:
 
-                item_db = Item.query.get(item["id"])
-                member_item = MemberItems.query.get((user.id, item_db.id))
+                item_db = item["item_db"]
+                member_item = Member_Item_Bringing.query.get((user.id, item_db.id))
 
                 if member_item:
 
                     item_db.amount_brought += (int(item["bring_amount"]) - member_item.item_amount)
 
-                    if item_db.amount_brought < item_db.amount and item_db.amount > item_db.start_amount:
-                        if item["bring_amount"] >= item_db.start_amount:
-                            item_db.amount -= (member_item.item_amount - item["bring_amount"])
+                    if item_db.amount_brought < item_db.amount_needed and item_db.amount_needed > item_db.default_needed_amount:
+                        if item["bring_amount"] >= item_db.default_needed_amount:
+                            item_db.amount_needed -= (member_item.item_amount - item["bring_amount"])
                         else:
-                            item_db.amount = item_db.start_amount
+                            item_db.amount_needed = item_db.default_needed_amount
 
                     member_item.item_price = item["price"]
                     member_item.item_amount = item["bring_amount"]
 
                 else:
-                    member_item = MemberItems(user_id=user.id, item_id=item_db.id, item_amount=item["bring_amount"],
+                    member_item = Member_Item_Bringing(user_id=user.id, item_id=item_db.id, item_amount=item["bring_amount"],
                                               session_id=session.id)
                     if "price" in item:
                         member_item.item_price = item["price"]
-                    user.items.append(member_item)
+                    user.item_bringings.append(member_item)
                     item_db.amount_brought += item["bring_amount"]
 
-                if item_db.amount_brought > item_db.amount:
-                    item_db.amount = item_db.amount_brought
-
+                if item_db.amount_brought > item_db.amount_needed:
+                    item_db.amount_needed = item_db.amount_brought
 
             for item in item_bring_data["new_items"]:
-                item_db = Item(name=item["name"], amount=item["amount"], start_amount=item["amount"], session_id=session.id, amount_brought=item["amount"])
+                item_db = Item(name=item["name"], amount_needed=item["amount"], default_needed_amount=item["amount"], session_id=session.id, amount_brought=item["amount"])
                 db.session.add(item_db)
                 item = Item.query.filter_by(name=item["name"]).first()
-                bringing = MemberItems(user_id=user.id, item_id=item.id, session_id=session.id, item_amount=item.amount)
+                bringing = Member_Item_Bringing(user_id=user.id, item_id=item.id, session_id=session.id, item_amount=item.amount_needed)
                 db.session.add(bringing)
 
-            total_value = 0
-            host_costs = 0
-            for member_item in session.member_items:
-                if member_item.item_price:
-                    volume = member_item.item_amount * member_item.item_price
-                    total_value += volume
-                    if member_item.user_id == session.owner_id:
-                        host_costs += volume
-
-            session.total_value = total_value
-            session.host_costs = host_costs
-            session.bringings = member_items_to_dict(session)
-
-            db.session.commit()
+            calculate_session_metrics(session)
 
             return {"message": "Successfully updated session"}, HTTPStatus.OK
 

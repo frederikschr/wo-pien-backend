@@ -8,6 +8,7 @@ class SessionSchema(Schema):
     name = fields.String(required=True)
     description = fields.String(required=False)
     address = fields.String(required=True)
+    coords = fields.Dict(required=False)
     date = fields.String(required=True)
     time = fields.String(required=True)
     members = fields.List(fields.String(), required=True)

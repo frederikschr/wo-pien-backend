@@ -4,7 +4,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from marshmallow import ValidationError
 from http import HTTPStatus
 from ..models.session import *
-from ..models.user import User, MemberItems
+from ..models.user import User
+from ..models.member_item_bringing import Member_Item_Bringing
 from ..models.item import Item
 from ..schemas.session.session_create import SessionSchema
 from ..schemas.session.session_edit import SessionEditSchema
@@ -21,20 +22,20 @@ class SessionResource(Resource):
             session_data = sessionSchema.load(data=json_data)
             owner = User.query.get(get_jwt_identity())
             session = Session(name=session_data["name"], description=session_data["description"],
-                              address=session_data["address"], date=session_data["date"],
+                              address=session_data["address"], coords=session_data["coords"], date=session_data["date"],
                               time=session_data["time"], owner_id=owner.id)
 
-            for member in session_data["members"]:
-                user = User.query.filter_by(username=member).first()
+            for member_name in session_data["members"]:
+                user = User.query.filter_by(username=member_name).first()
                 if not user.id == session.owner_id:
-                    session.invites.append(user)
+                    session.invited_users.append(user)
                 else:
                     session.members.append(user)
 
             for item in session_data["items"]:
                 try:
                     item_data = item_create_schema.load(data=item)
-                    session.items.append(Item(name=item_data["name"], amount=item_data["amount"], byHost=item_data["byHost"], start_amount=item_data["amount"]))
+                    session.items.append(Item(name=item_data["name"], amount_needed=item_data["amount"], byHost=item_data["byHost"], default_needed_amount=item_data["amount"]))
                 except ValidationError as e:
                     return e.messages, HTTPStatus.BAD_REQUEST
 
@@ -43,8 +44,8 @@ class SessionResource(Resource):
 
             for item in session.items:
                 if item.byHost:
-                    host_item = MemberItems(user_id=owner.id, item_id=item.id, item_amount=item.amount, session_id=session.id)
-                    owner.items.append(host_item)
+                    host_item = Member_Item_Bringing(user_id=owner.id, item_id=item.id, item_amount=item.amount_needed, session_id=session.id)
+                    owner.item_bringings.append(host_item)
                     item.amount_brought = host_item.item_amount
 
             db.session.commit()
@@ -63,7 +64,7 @@ class SessionResource(Resource):
             if session in user.invited_sessions:
                 user.invited_sessions.remove(session)
                 if json_data["accepted"]:
-                    user.sessions.append(session)
+                    user.joined_sessions.append(session)
                     message = {"message": f"You successfully joined {session.name}"}
                 else:
                     message = {"message": f"You successfully rejected {session.name}"}
@@ -95,13 +96,16 @@ class SessionResource(Resource):
                 return {"session": Session.query.get(int(id)).get_data(user_id=get_jwt_identity())}, HTTPStatus.OK
             return {"error": "Session does not exist (anymore)"}, HTTPStatus.NOT_FOUND
 
-        return {"sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).sessions],
+        return {"sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).joined_sessions],
                 "invited_sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).invited_sessions]}, HTTPStatus.OK
 
 class SessionEditResource(Resource):
     @jwt_required()
     def patch(self):
         json_data = request.get_json()
+
+        print(json_data)
+
         session_edit_schema = SessionEditSchema()
         item_create_schema = ItemCreateSchema()
         try:
@@ -109,7 +113,10 @@ class SessionEditResource(Resource):
             edited_session_data = session_edit_schema.load(data=json_data)
             session = Session.query.get(edited_session_data["ids"]["session_id"])
 
+            print(edited_session_data)
+
             session.address = edited_session_data["address"]
+            session.coords = edited_session_data["coords"]
             session.date = edited_session_data["date"]
             session.time = edited_session_data["time"]
 
@@ -121,7 +128,7 @@ class SessionEditResource(Resource):
             for member in edited_session_data["members"]:
                 member = User.query.filter_by(username=member).first()
                 if not member in session.members:
-                    session.invites.append(member)
+                    session.invited_users.append(member)
 
             for updated_item in edited_session_data["items"]:
                 if "id" in updated_item:
@@ -138,8 +145,8 @@ class SessionEditResource(Resource):
                     try:
                         item_data = item_create_schema.load(data=updated_item)
                         session.items.append(
-                            Item(name=item_data["name"], amount=item_data["amount"], byHost=item_data["byHost"],
-                                 start_amount=item_data["amount"]))
+                            Item(name=item_data["name"], amount_needed=item_data["amount"], byHost=item_data["byHost"],
+                                 default_needed_amount=item_data["amount"]))
 
                     except ValidationError as e:
                         return e.messages, HTTPStatus.BAD_REQUEST
@@ -168,7 +175,7 @@ class SessionEditResource(Resource):
             if session:
                 if session.owner_id == user.id:
 
-                    for bringing in session.member_items:
+                    for bringing in session.item_member_bringings:
                         db.session.delete(bringing)
 
                     for item in session.items:

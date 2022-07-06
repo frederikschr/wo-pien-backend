@@ -1,5 +1,5 @@
-from .db import db, session_members, session_invites
-from .item import Item
+from .db import db
+from .mtm_relationships import session_members, session_invited_users
 
 class User(db.Model):
     __tablename__ = "user"
@@ -8,14 +8,14 @@ class User(db.Model):
     username = db.Column(db.String(20), unique=True)
     email = db.Column(db.String(35))
     password = db.Column(db.String())
-    avatar_base64 = db.Column(db.String())
+    avatar_base64 = db.Column(db.String(), default="")
     promille_record = db.Column(db.Float(), default=0.0)
     sessions_attended = db.Column(db.Integer, default=0)
     owned_sessions = db.relationship("Session", backref="owner", lazy=True)
-    sessions = db.relationship("Session", secondary=session_members, lazy="subquery", backref=db.backref("members", lazy=True))
-    invited_sessions = db.relationship("Session", secondary=session_invites, lazy="subquery", backref=db.backref("invites", lazy=True))
+    joined_sessions = db.relationship("Session", secondary=session_members, lazy="subquery", backref=db.backref("members", lazy=True))
+    invited_sessions = db.relationship("Session", secondary=session_invited_users, lazy="subquery", backref=db.backref("invited_users", lazy=True))
     is_admin = db.Column(db.Boolean, default=False)
-    items = db.relationship("MemberItems")
+    item_bringings = db.relationship("Member_Item_Bringing", backref=db.backref("bringer"), lazy=True)
 
     def get_data(self):
         return {"id": self.id,
@@ -23,26 +23,8 @@ class User(db.Model):
                 "email": self.email,
                 "avatar": self.avatar_base64,
                 "promille_record": self.promille_record,
-                "sessions_attended": self.sessions_attended}
-
-class MemberItems(db.Model):
-    __tablename__ = "member_items"
-
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    item_id = db.Column(db.Integer, db.ForeignKey("item.id"), primary_key=True)
-    session_id = db.Column(db.Integer, db.ForeignKey("session.id"))
-    item_amount = db.Column(db.Integer)
-    item_price = db.Column(db.Float, default=0)
-
-    def get_data(self):
-        member_items_data = {
-            "user": User.query.get(self.user_id).get_data(),
-            "bring_amount": self.item_amount,
-            "price": self.item_price
-        }
-        item_data = Item.query.get(self.item_id).get_data()
-        member_items_data.update(item_data)
-        return member_items_data
+                "sessions_attended": self.sessions_attended,
+                "is_admin": self.is_admin}
 
 
 

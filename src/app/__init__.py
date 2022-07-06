@@ -44,7 +44,7 @@ def create_app():
 
     @app.route('/')
     def home():
-        return f"Welcome to WoPien backend from Container: {socket.gethostname()}!"
+        return f"Welcome to WoPien backend from Host / Container: {socket.gethostname()}!"
 
     return app
 
@@ -59,4 +59,3 @@ def register_resources(app):
 
 def create_database(app):
     db.create_all(app=app)
-

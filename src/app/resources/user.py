@@ -7,9 +7,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from marshmallow import ValidationError
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 import datetime as dt
-from ..models.user import *
+from ..models.user import User
+from ..models.db import db
 from ..schemas.user import UserSchema, ProfileSchema
-from ..utils import check_sessions
+from ..utils import check_session_dates_for_expired
 
 class UserResource(Resource):
     def post(self):
@@ -34,7 +35,7 @@ class UserResource(Resource):
             if check_password_hash(user.password, password):
                 expires = dt.timedelta(hours=3)
                 access_token = create_access_token(identity=user.id, expires_delta=expires, fresh=True)
-                check_sessions(user)
+                check_session_dates_for_expired(user)
                 return {"user": user.get_data(), "token": access_token, "all_users": [user.username for user in User.query.all()]}, HTTPStatus.OK
             else:
                 data = {"error": "Incorrect password", "status": HTTPStatus.FORBIDDEN}

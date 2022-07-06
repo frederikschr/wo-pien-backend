@@ -9,6 +9,7 @@ class SessionEditSchema(Schema):
 
     ids = fields.Dict(required=True)
     address = fields.String(required=True)
+    coords = fields.Dict(required=False)
     date = fields.String(required=True)
     time = fields.String(required=True)
     members = fields.List(fields.String(), required=True)
