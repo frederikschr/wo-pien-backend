@@ -22,6 +22,9 @@ def create_app():
 
     migrate = Migrate()
 
+
+    """
+    
     if status == "Production":
         print("Loading Production config...")
         app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
@@ -31,6 +34,10 @@ def create_app():
         print("Loading Development config...")
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
         app.config["DEBUG"] = True
+        
+    """
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://ngwdcnrfdokest:52f52de8c9628259a8abd207742d6448295ce4d40266f55616269bf7a9a5e7ea@ec2-99-81-16-126.eu-west-1.compute.amazonaws.com:5432/de962uklrltp53"
 
     db.init_app(app)
     jwt.init_app(app)
