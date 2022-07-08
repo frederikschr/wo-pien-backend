@@ -9,7 +9,7 @@ class Session(db.Model):
     name = db.Column(db.String(30))
     description = db.Column(db.String(300))
     address = db.Column(db.String(50))
-    coords = db.Column(db.JSON(), default={"lat": 51.9, "lng": 7.6})
+    coords = db.Column(db.JSON, default={"lat": 51.9, "lng": 7.6})
     date = db.Column(db.String(10))
     time = db.Column(db.String(5))
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
