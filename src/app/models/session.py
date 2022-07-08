@@ -8,7 +8,7 @@ class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
     description = db.Column(db.String(300))
-    address = db.Column(db.String(25))
+    address = db.Column(db.String(50))
     coords = db.Column(db.JSON(), default={"lat": 51.9, "lng": 7.6})
     date = db.Column(db.String(10))
     time = db.Column(db.String(5))

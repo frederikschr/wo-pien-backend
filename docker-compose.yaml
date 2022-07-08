@@ -17,9 +17,9 @@ services:
   nginx:
     image: nginx:latest
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./example.crt:/etc/nginx/ssl/example.crt:ro
-      - ./example.key:/etc/nginx/ssl/example.key:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl/example.crt:/etc/nginx/ssl/example.crt:ro
+      - ./nginx/ssl/example.key:/etc/nginx/ssl/example.key:ro
 
     depends_on:
       - flask-app
