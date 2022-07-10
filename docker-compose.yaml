@@ -18,8 +18,8 @@ services:
     image: nginx:latest
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl/example.crt:/etc/nginx/ssl/example.crt:ro
-      - ./nginx/ssl/example.key:/etc/nginx/ssl/example.key:ro
+      - ./nginx/ssl/wopien.crt:/etc/nginx/ssl/wopien.crt:ro
+      - ./nginx/ssl/wopien.key:/etc/nginx/ssl/wopien.key:ro
 
     depends_on:
       - flask-app

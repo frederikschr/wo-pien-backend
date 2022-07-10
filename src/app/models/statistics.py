@@ -8,9 +8,3 @@ class Statistics(db.Model):
     most_sessions_attendet = db.Column(db.String())
 
 
-
-
-
-
-
-
