@@ -11,6 +11,7 @@ def check_session_dates_for_expired(user):
             del_all_associates_session(session)
             for member in session.members:
                 member.sessions_attended += 1
+            db.session.delete(session)
             db.session.commit()
 
 def del_all_associates_user(user, session):
@@ -23,7 +24,7 @@ def del_all_associates_user(user, session):
     db.session.commit()
 
 def del_all_associates_session(session):
-    for bringing in session.member_items:
+    for bringing in session.item_member_bringings:
         db.session.delete(bringing)
     for item in session.items:
         db.session.delete(item)
@@ -49,11 +50,10 @@ def calculate_session_metrics(session):
             total_value += volume
             if member_item.user_id == session.owner_id:
                 host_costs += volume
-
+                
     session.total_value = total_value
     session.host_costs = host_costs
     session.bringings = member_items_to_dict(session)
-
     db.session.commit()
 
 
