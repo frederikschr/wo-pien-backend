@@ -42,15 +42,16 @@ def member_items_to_dict(session):
     return user_costs
 
 def calculate_session_metrics(session):
-    total_value = 0
-    host_costs = 0
+    total_value = 0.0
+    host_costs = 0.0
     for member_item in session.item_member_bringings:
         if member_item.item_price:
-            volume = member_item.item_amount * member_item.item_price
+            print(member_item.item_price)
+            volume = float(member_item.item_amount * member_item.item_price)
             total_value += volume
             if member_item.user_id == session.owner_id:
                 host_costs += volume
-                
+
     session.total_value = total_value
     session.host_costs = host_costs
     session.bringings = member_items_to_dict(session)

@@ -1,3 +1,4 @@
+import os
 from .db import db
 from .mtm_relationships import session_members, session_invited_users
 
@@ -8,7 +9,7 @@ class User(db.Model):
     username = db.Column(db.String(20), unique=True)
     email = db.Column(db.String(35))
     password = db.Column(db.String())
-    avatar_base64 = db.Column(db.String(), default="")
+    avatar_base64 = db.Column(db.String(), default=os.environ.get("DEFAULT_AVATAR"))
     promille_record = db.Column(db.Float(), default=0.0)
     sessions_attended = db.Column(db.Integer, default=0)
     owned_sessions = db.relationship("Session", backref="owner", lazy=True)

@@ -61,10 +61,11 @@ class ItemBringSchema(Schema):
                     if item_db in session_db.items:
                         if updated_item["bring_amount"] != "":
                             if updated_item["bring_amount"] < 1 or updated_item["bring_amount"] > 1000:
-                                raise ValidationError("Bring amount must reach from 0 to 1000")
+                                raise ValidationError("Bring amount must reach from 1 to 1000")
 
                             else:
                                 if "price" in updated_item:
+                                    updated_item["price"] = float(updated_item["price"])
                                     if updated_item["price"] < 0 or updated_item["price"] > 1000:
                                         raise ValidationError("Price must reach from 0 to 1000")
 
