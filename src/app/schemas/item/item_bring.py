@@ -65,7 +65,8 @@ class ItemBringSchema(Schema):
 
                             else:
                                 if "price" in updated_item:
-                                    updated_item["price"] = float(updated_item["price"])
+                                    price = updated_item["price"]
+                                    updated_item["price"] = float(price)
                                     if updated_item["price"] < 0 or updated_item["price"] > 1000:
                                         raise ValidationError("Price must reach from 0 to 1000")
 

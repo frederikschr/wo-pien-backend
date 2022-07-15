@@ -92,8 +92,10 @@ class SessionResource(Resource):
     @jwt_required()
     def get(self):
         if id := request.args.get("id"):
-            if Session.query.get(id):
-                return {"session": Session.query.get(int(id)).get_data(user_id=get_jwt_identity())}, HTTPStatus.OK
+            if session := Session.query.get(id):
+                if user := User.query.get(get_jwt_identity()) in session.members:
+                    return {"session": session.get_data(user_id=user.id)}, HTTPStatus.OK
+                return {"error": "You are not part of this session (anymore)"}, HTTPStatus.UNAUTHORIZED
             return {"error": "Session does not exist (anymore)"}, HTTPStatus.NOT_FOUND
 
         return {"sessions": [session.get_data() for session in User.query.get(get_jwt_identity()).joined_sessions],
