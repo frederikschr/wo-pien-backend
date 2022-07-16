@@ -32,6 +32,8 @@ def create_app():
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
         app.config["DEBUG"] = True
 
+    print(os.environ.get("DEFAULT_AVATAR"))
+
     db.init_app(app)
     jwt.init_app(app)
 

@@ -10,6 +10,7 @@ services:
       - STATUS=${STATUS}
       - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY}
+      - DEFAULT_AVATAR=${DEFAULT_AVATAR}
 
     ports:
       - "5000"

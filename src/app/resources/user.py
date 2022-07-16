@@ -18,7 +18,7 @@ class UserResource(Resource):
         userSchema = UserSchema()
         try:
             user_data = userSchema.load(data=json_data)
-            user = User(username=user_data["name"], email=user_data["email"], password=generate_password_hash(user_data["password"], "sha256"), avatar_base64=os.environ.get("DEFAULT_AVATAR"))
+            user = User(username=user_data["name"], email=user_data["email"], password=generate_password_hash(user_data["password"], "sha256"))
             db.session.add(user)
             db.session.commit()
             return {"message": f"Successfully created {user.username}"}, HTTPStatus.CREATED
