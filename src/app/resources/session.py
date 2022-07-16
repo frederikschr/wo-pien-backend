@@ -93,7 +93,8 @@ class SessionResource(Resource):
     def get(self):
         if id := request.args.get("id"):
             if session := Session.query.get(id):
-                if user := User.query.get(get_jwt_identity()) in session.members:
+                user = User.query.get(get_jwt_identity())
+                if user in session.members:
                     return {"session": session.get_data(user_id=user.id)}, HTTPStatus.OK
                 return {"error": "You are not part of this session (anymore)"}, HTTPStatus.UNAUTHORIZED
             return {"error": "Session does not exist (anymore)"}, HTTPStatus.NOT_FOUND
