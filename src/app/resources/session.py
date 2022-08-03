@@ -10,7 +10,7 @@ from ..models.item import Item
 from ..schemas.session.session_create import SessionSchema
 from ..schemas.session.session_edit import SessionEditSchema
 from ..schemas.item.item_create import ItemCreateSchema
-from ..utils import del_all_associates_user, member_items_to_dict
+from ..utils import del_all_associates_of_user_in_session, member_items_to_dict
 
 class SessionResource(Resource):
     @jwt_required()
@@ -78,7 +78,7 @@ class SessionResource(Resource):
                 if not session.owner_id == user.id:
                     session.members.remove(user)
                     db.session.commit()
-                    del_all_associates_user(user, session)
+                    del_all_associates_of_user_in_session(user, session)
                     session.bringings = member_items_to_dict(session)
                     return {"message": f"You successfully left {session.name}"}, HTTPStatus.OK
 
@@ -121,7 +121,7 @@ class SessionEditResource(Resource):
             for member in session.members:
                 if not member.username in edited_session_data["members"] and member.id != session.owner_id:
                     session.members.remove(member)
-                    del_all_associates_user(member, session)
+                    del_all_associates_of_user_in_session(member, session)
 
             for member in edited_session_data["members"]:
                 member = User.query.filter_by(username=member).first()

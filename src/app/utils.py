@@ -8,22 +8,36 @@ def check_session_dates_for_expired(user):
     today = time.strptime(str(dt.date.today()), "%Y-%m-%d")
     for session in user.joined_sessions:
         if time.strptime(session.date, "%Y-%m-%d") < today:
-            del_all_associates_session(session)
+            del_all_associates_of_session(session)
             for member in session.members:
                 member.sessions_attended += 1
             db.session.delete(session)
             db.session.commit()
 
-def del_all_associates_user(user, session):
-    session_items = [item.id for item in session.items]
-    for bringing in user.item_bringings:
-        if bringing.item_id in session_items:
-            item = Item.query.get(bringing.item_id)
-            item.amount_brought -= bringing.item_amount
-            db.session.delete(bringing)
+def del_all_associates_of_user_in_session(user, session):
+    if session.owner != user:
+        session_items = [item.id for item in session.items]
+        for bringing in user.item_bringings:
+            if bringing.item_id in session_items:
+                item = Item.query.get(bringing.item_id)
+                item.amount_brought -= bringing.item_amount
+                db.session.delete(bringing)
+    else:
+        del_all_associates_of_session(session)
+        db.session.delete(session)
+
     db.session.commit()
 
-def del_all_associates_session(session):
+def del_user(user):
+    for session in user.joined_sessions:
+        del_all_associates_of_user_in_session(user, session)
+    for session in user.invited_sessions:
+        session.invited_users.remove(user)
+
+    db.session.delete(user)
+    db.session.commit()
+
+def del_all_associates_of_session(session):
     for bringing in session.item_member_bringings:
         db.session.delete(bringing)
     for item in session.items:
@@ -46,7 +60,6 @@ def calculate_session_metrics(session):
     host_costs = 0.0
     for member_item in session.item_member_bringings:
         if member_item.item_price:
-            print(member_item.item_price)
             volume = float(member_item.item_amount * member_item.item_price)
             total_value += volume
             if member_item.user_id == session.owner_id:

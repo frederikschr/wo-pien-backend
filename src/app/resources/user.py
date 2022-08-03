@@ -1,5 +1,4 @@
 import base64
-import os
 from flask_restful import Resource
 from flask import request
 from http import HTTPStatus
@@ -10,7 +9,7 @@ import datetime as dt
 from ..models.user import User
 from ..models.db import db
 from ..schemas.user import UserSchema, ProfileSchema
-from ..utils import check_session_dates_for_expired
+from ..utils import check_session_dates_for_expired, del_user
 
 class UserResource(Resource):
     def post(self):
@@ -43,6 +42,16 @@ class UserResource(Resource):
             data = {"error": "User does not exist", "status": HTTPStatus.NOT_FOUND}
 
         return {"error": data["error"]}, data["status"]
+
+    @jwt_required()
+    def delete(self):
+        user = User.query.get(get_jwt_identity())
+        if user:
+            del_user(user)
+            return {"message": f"Successfully deleted {user.username}"}, HTTPStatus.OK
+        else:
+            return {"error": f"User does not exist anymore"}, HTTPStatus.NOT_FOUND
+
 
 class ProfileResource(Resource):
     @jwt_required()
@@ -84,16 +93,3 @@ class AvatarResource(Resource):
 
         else:
             return {"error": "File is missing"}, HTTPStatus.NOT_FOUND
-
-
-
-
-
-
-
-
-
-
-
-
-
